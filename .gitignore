@@ -1,0 +1,10 @@
+#compiled java files
+*.class
+
+#temp files
+*~
+
+#executables
+*.o
+*.exe
+
