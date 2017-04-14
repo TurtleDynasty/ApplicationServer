@@ -1,4 +1,4 @@
-package appserver.client;
+package appserver.job;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -12,7 +12,7 @@ public class FibClient extends Thread implements MessageTypes{
 
     Properties properties;
     Integer num;
-    string host = null;
+    String host = null;
     int port;
 
     public FibClient(String serverPropertiesFile, Integer num) {
@@ -69,4 +69,3 @@ public class FibClient extends Thread implements MessageTypes{
     }
 
 }
-

@@ -1,8 +1,6 @@
-package appserver.job.impl;
+package appserver.job;
 
-import appserver.job.Tool;
-
-public class Fib implements Tool {
+public class Fib {
 
 	//recursively calculates the fib number of the passed in integer
 	static public Integer fib (Integer num){
@@ -14,14 +12,12 @@ public class Fib implements Tool {
 
 		} else {
 
-		    return fib(num -1) + fib(number -2);
+		    return fib(num -1) + fib(num -2);
 
         }
 	}
-	
-	@Override
+
 	public Object activate(Object parameters){
 		return Fib.fib((Integer) parameters);
 	}
 }
-
