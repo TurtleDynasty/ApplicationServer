@@ -34,19 +34,19 @@ public class Server {
             properties = new PropertyHandler(serverPropertiesFile);
             host = properties.getProperty("HOST");
             System.out.println("Server host : " + host);
-            
+
             // read server port from server properties file
-            port = Integer.parseInt(Properties.getProperty("PORT"));
+            port = Integer.parseInt(properties.getProperty("PORT"));
             System.out.println("Server port : " + port);
 
             // create server socket
             serverSocket = new ServerSocket(port);
-            
+
 
         } catch (Exception error) {
             System.err.println("Server error : " + error);
         }
-        
+
     }
 
     public void run() {
@@ -79,7 +79,7 @@ public class Server {
         public void run() {
             // setting up object streams
              try {
-                
+
                 readFromNet = new ObjectInputStream(client.getInputStream());
                 writeToNet = new ObjectOutputStream(client.getOutputStream());
                 message = (Message) readFromNet.readObject();
@@ -89,7 +89,7 @@ public class Server {
                 e.printStackTrace();
                 System.exit(1);
             }
-            
+
             // reading message
             try {
                 message = (Message) readFromNet.readObject();
@@ -106,7 +106,7 @@ public class Server {
                     // read satellite info
                     satelliteInfo = (ConnectivityInfo) message.getContent();
                     System.out.println("[ServerThread] Satellite name: " + satelliteInfo.getName() );
-                    
+
                     // register satellite
                     synchronized (Server.satelliteManager) {
                         // add info from [this] satellite to Manager class
@@ -134,12 +134,12 @@ public class Server {
                             System.err.println("Server error: " + error);
                             System.exit(1);
                         }
-                        
+
                         // get connectivity info for next satellite from satellite manager
                         try {
 
                             satelliteInfo = satelliteManager.getSatelliteForName(satelliteName);
-                            
+
                         } catch (Exception error) {
                             System.err.println("Server error: " + error);
                             System.exit(1);
@@ -152,7 +152,7 @@ public class Server {
                     ObjectOutputStream satelliteWriteFromNet;
 
                     try {
-                        
+
                         // connect to satellite
                         satelliteSocket = new Socket(satelliteInfo.getHost(), satelliteInfo.getPort());
 
@@ -161,7 +161,7 @@ public class Server {
                         satelliteWriteFromNet = new ObjectOutputStream(satelliteSocket.getOutputStream());
 
                         // forward message (as is) to satellite
-                        sattelliteWriteFromNet.writeObject(message);
+                        satelliteWriteFromNet.writeObject(message);
 
                         // receive result from satellite and
                         Object result  = sattelliteReadFromNet.readObject();
@@ -194,4 +194,3 @@ public class Server {
         server.run();
     }
 }
-
