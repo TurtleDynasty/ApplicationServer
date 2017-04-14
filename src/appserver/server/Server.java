@@ -157,7 +157,8 @@ public class Server {
                         satelliteSocket = new Socket(satelliteInfo.getHost(), satelliteInfo.getPort());
 
                         // open object streams
-                        satelliteReadFromNet = new ObjectOutputStream(satelliteSocket.getInputSteam());
+
+                        satelliteReadFromNet = new ObjectInputStream(satelliteSocket.getInputStream());
                         satelliteWriteFromNet = new ObjectOutputStream(satelliteSocket.getOutputStream());
 
                         // forward message (as is) to satellite
