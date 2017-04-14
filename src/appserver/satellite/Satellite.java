@@ -291,7 +291,7 @@ public class Satellite extends Thread {
         }
     }
     
-    // @Grader - Use webServer properties for the classLoader propterties file
+    // @Grader - Use webServer properties for the classLoader propterties file 
     // An addition to the properties handler class was necessary for this.
     // Also note that strings here work on Linux, but might not on Windows. You need to change file paths accordingly. 
     public static void main(String[] args) {
