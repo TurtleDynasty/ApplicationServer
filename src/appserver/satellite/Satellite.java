@@ -57,16 +57,47 @@ public class Satellite extends Thread {
     
         
         // create a socket info object that will be sent to the server
-        // ...
-        
+        try {
+            satelliteInfo.setHost((InetAddress.getLocalHost()).getHostAddress());
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        satelliteInfo.setPort(Integer.parseInt(satelliteProperties.getProperty("PORT")));
+        satelliteInfo.setName(satelliteProperties.getProperty("NAME"));
         
         // get connectivity information of the server
-        // ...
-        
+        try {
+            PropertyHandler configurationServer = new PropertyHandler(serverPropertiesFile);
+            serverInfo.setHost(configurationServer.getProperty("HOST"));
+            serverInfo.setPort(Integer.parseInt(configurationServer.getProperty("PORT")));
+        } catch (Exception e) {
+            // no use carrying on, so bailing out ...
+            e.printStackTrace();
+            System.exit(1);
+        }
         
         // create class loader 
+        PropertyHandler classLoaderProperties = null;
+
         // read class loader config
+        try {
+            classLoaderProperties = new PropertyHandler(classLoaderPropertiesFile);
+        } catch (Exception e) {
+            // no use carrying on, so bailing out ...
+            e.printStackTrace();
+            System.exit(1);
+        }
+
         // get class loader connectivity properties and create class loader
+        classLoader = new HTTPClassLoader(classLoaderProperties.getProperty("HOST"), Integer.parseInt(classLoaderProperties.getProperty("PORT")));
+
+        if (classLoader != null) {
+            System.err.println("[Satellite.Satellite] HTTPClassLoader created on " + satelliteInfo.getName());
+        } else {
+            System.err.println("[Satellite.Satellite] Could not create HTTPClassLoader, exiting ...");
+            System.exit(1);
+        }
 
         // see init class loader      
         initClassLoader();
@@ -80,18 +111,53 @@ public class Satellite extends Thread {
     public void run() {
 
         // register this satellite with the SatelliteManager on the server
-        // ---------------------------------------------------------------
-        // ...
+         ObjectOutputStream writeToNet = null;
+        Message message = null;
+
+        // connect to the server
+        Socket server = null;
+        try {
+            server = new Socket(serverInfo.getHost(), serverInfo.getPort());
+        } catch (IOException ex) {
+            System.err.println("[Satellite.run] Opening socket to server failed");
+            ex.printStackTrace();
+            System.exit(1);
+        }
+        System.out.println("[Satellite.run] Satellite " + satelliteInfo.getName() + " connected to server, transfer connectivity information ...");
+
+        // setting up output stream
+        try {
+            writeToNet = new ObjectOutputStream(server.getOutputStream());
+            //readFromNet = new ObjectInputStream(server.getInputStream());
+        } catch (IOException ex) {
+            System.err.println("[Satellite.run] Opening object stream to server failed");
+            ex.printStackTrace();
+            System.exit(1);
+        }
+
+        // creating message containing satellite connectivity information
+        message = new Message();
+        message.setType(REGISTER_SATELLITE);
+        message.setContent(satelliteInfo);
+
+        // sending message object with connectivity info to server
+        try {
+            writeToNet.writeObject(message);
+            writeToNet.flush();
+        } catch (Exception ex) {
+            System.err.println("[Satellite.run] Writing SatelliteInfo to server failed");
+            ex.printStackTrace();
+            System.exit(1);
+        }
         
         
         // create server socket
-        // ---------------------------------------------------------------
         ServerSocket serverSocket;
         
         String satellitePort = satelliteProperties.getProperty("PORT");
         String satelliteName = satelliteProperties.getProperty("NAME");
-        // start taking job requests in a server loop
-        // ---------------------------------------------------------------        
+        // start taking job requests in a server loop     
+        // @Note to self Otte's suggestion was different from ours. May need to revist this.   
         try
         { 
             // creates an instance of a server socket 
@@ -110,6 +176,7 @@ public class Satellite extends Thread {
         }
     }
 
+    // @Note to self this class is also different in Otte's suggestion. Revist this.
     // inner helper class that is instanciated in above server loop and processes job requests
     private class SatelliteThread extends Thread {
 
