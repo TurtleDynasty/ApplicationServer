@@ -164,7 +164,7 @@ public class Server {
                         satelliteWriteFromNet.writeObject(message);
 
                         // receive result from satellite and
-                        Object result  = sattelliteReadFromNet.readObject();
+                        Object result  = satelliteReadFromNet.readObject();
 
                         // write result back to client
                         writeToNet.writeObject(result);writeToNet.writeObject(result);
